@@ -12,12 +12,16 @@ A C# ASP.NET Core backend system for blind project approval, with SQL Server dat
 ## Setup
 
 ### Backend (C#)
-1. Navigate to backend-csharp: `cd backend-csharp`
-2. Restore packages: `dotnet restore`
-3. Update `appsettings.json` with your SQL Server connection string and JWT settings.
-4. Run migrations: `dotnet ef migrations add InitialCreate`
-5. Apply the database: `dotnet ef database update`
-6. Run the server: `dotnet run`
+1. Open this folder in VS Code: `-A-Blind-Project-Approval-System`
+2. Restore packages: `dotnet restore backend-csharp/BlindProjectApproval.csproj`
+3. Update `backend-csharp/appsettings.json` with your SQL Server connection string and JWT settings.
+4. Create the database migration: `dotnet ef migrations add InitialCreate --project backend-csharp/BlindProjectApproval.csproj`
+5. Apply the database: `dotnet ef database update --project backend-csharp/BlindProjectApproval.csproj`
+6. Run the server: `dotnet run --project backend-csharp/BlindProjectApproval.csproj`
+
+### VS Code
+- Use `Terminal > Run Task... > Run Backend`
+- Or use the Debug panel and launch `Launch Backend`
 
 ## API Endpoints
 
