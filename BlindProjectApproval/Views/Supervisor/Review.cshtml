@@ -1,0 +1,24 @@
+@model BlindProjectApproval.Models.ProposalReviewViewModel
+
+@{
+    ViewData["Title"] = "Blind Review";
+}
+
+<section class="review-panel">
+    <h2>Blind Review</h2>
+    <div class="review-notice">Student name is hidden to maintain blind review integrity.</div>
+
+    <div class="proposal-card">
+        <h3>@Model.Proposal.Title</h3>
+        <p><strong>Expertise area:</strong> @Model.ExpertiseArea?.Name</p>
+        <p><strong>Description:</strong> @Model.Proposal.Description</p>
+        <p><strong>Current status:</strong> @Model.Proposal.StatusLabel</p>
+    </div>
+
+    <form asp-action="ReviewAction" method="post" class="review-actions">
+        <input type="hidden" name="ProposalId" value="@Model.Proposal.Id" />
+        <button type="submit" name="ActionType" value="Accept" class="primary-button">Accept</button>
+        <button type="submit" name="ActionType" value="Reject" class="secondary-button">Reject</button>
+        <a class="cancel-link" asp-action="Index">Back to Dashboard</a>
+    </form>
+</section>

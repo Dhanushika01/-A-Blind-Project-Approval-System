@@ -1,0 +1,64 @@
+@model BlindProjectApproval.Models.SupervisorDashboardViewModel
+
+@{
+    ViewData["Title"] = "Supervisor Dashboard";
+}
+
+<section class="dashboard-panel">
+    <h2>Select Expertise Areas</h2>
+    <form method="get" class="expertise-form">
+        <div class="expertise-grid">
+            @foreach (var expertise in Model.ExpertiseAreas)
+            {
+                <label class="expertise-item">
+                    <input type="checkbox" name="selectedExpertiseIds" value="@expertise.Id" @(Model.SelectedExpertiseIds.Contains(expertise.Id) ? "checked" : "") />
+                    @expertise.Name
+                </label>
+            }
+        </div>
+        <button type="submit" class="primary-button">Filter Proposals</button>
+    </form>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Message))
+    {
+        <div class="alert-message">@Model.Message</div>
+    }
+
+    <div class="proposals-section">
+        <h2>Blind Review Proposals</h2>
+
+        @if (!Model.MatchingProposals.Any())
+        {
+            <div class="empty-state">Select expertise areas to show matching proposals.</div>
+        }
+        else
+        {
+            <table class="proposal-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Expertise</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var proposal in Model.MatchingProposals)
+                    {
+                        var expertise = Model.ExpertiseAreas.FirstOrDefault(e => e.Id == proposal.ExpertiseAreaId)?.Name ?? "Unknown";
+                        <tr>
+                            <td>@proposal.Title</td>
+                            <td>@expertise</td>
+                            <td>@proposal.Description</td>
+                            <td>@proposal.StatusLabel</td>
+                            <td>
+                                <a class="action-link" asp-action="Review" asp-route-id="@proposal.Id">Blind Review</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</section>
