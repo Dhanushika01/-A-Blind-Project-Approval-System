@@ -65,7 +65,23 @@ public class ReviewsController : ControllerBase
         }
         else
         {
-            var reviews = await _context.Reviews.Where(r => r.ProjectId == id && r.ReviewerId == userId.Value).Include(r => r.Reviewer).ToListAsync();
+            var project = await _context.Projects.FindAsync(id);
+            if (project == null) return NotFound();
+
+            var reviews = await _context.Reviews
+                .Where(r => r.ProjectId == id && (r.ReviewerId == userId.Value || project.SubmittedById == userId.Value))
+                .Include(r => r.Reviewer)
+                .ToListAsync();
+
+            // Blind the reviewer identity for non-admins if it was anonymous, unless the viewer is the reviewer themselves
+            foreach (var review in reviews)
+            {
+                if (review.Anonymous && review.ReviewerId != userId.Value)
+                {
+                    review.Reviewer = null;
+                }
+            }
+
             return Ok(reviews);
         }
     }

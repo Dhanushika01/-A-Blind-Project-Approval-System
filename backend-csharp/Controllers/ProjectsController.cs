@@ -32,9 +32,14 @@ public class ProjectsController : ControllerBase
         var user = await _context.Users.FindAsync(userId.Value);
         if (user == null) return Unauthorized();
 
-        if (user.Role == "admin" || user.Role == "reviewer")
+        if (user.Role == "admin")
         {
             var projects = await _context.Projects.Include(p => p.SubmittedBy).ToListAsync();
+            return Ok(projects);
+        }
+        else if (user.Role == "reviewer")
+        {
+            var projects = await _context.Projects.ToListAsync();
             return Ok(projects);
         }
         return Forbid();

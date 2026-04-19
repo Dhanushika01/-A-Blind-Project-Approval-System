@@ -6,7 +6,7 @@ namespace BlindProjectApproval.Models
     {
         public int Id { get; set; }
         public int ReviewerId { get; set; }
-        public User Reviewer { get; set; } = default!;
+        public User? Reviewer { get; set; }
         public int ProjectId { get; set; }
         public Project Project { get; set; } = default!;
         [Range(1, 5)]

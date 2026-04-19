@@ -31,7 +31,7 @@ public class AuthController : ControllerBase
             Name = model.Name,
             Email = model.Email,
             Password = BCrypt.Net.BCrypt.HashPassword(model.Password),
-            Role = string.IsNullOrWhiteSpace(model.Role) ? "submitter" : model.Role.Trim()
+            Role = "submitter" // Force default role for security instead of model.Role
         };
 
         _context.Users.Add(user);

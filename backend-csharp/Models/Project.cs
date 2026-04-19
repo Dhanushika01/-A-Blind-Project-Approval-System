@@ -10,7 +10,7 @@ namespace BlindProjectApproval.Models
         [Required]
         public string Description { get; set; } = string.Empty;
         public int SubmittedById { get; set; }
-        public User SubmittedBy { get; set; } = default!;
+        public User? SubmittedBy { get; set; }
         public string Status { get; set; } = "pending"; // pending, approved, rejected
         public List<Review> Reviews { get; set; } = new();
         public DateTime CreatedAt { get; set; } = DateTime.Now;
