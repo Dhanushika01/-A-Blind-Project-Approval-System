@@ -18,11 +18,11 @@ public class ReviewsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin, Supervisor")]
     public async Task<IActionResult> SubmitReview([FromBody] ReviewModel model)
     {
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-        var user = _context.Users.Find(userId);
-        if (user.Role != "reviewer" && user.Role != "admin") return Forbid();
+
 
         var review = new Review
         {
@@ -42,7 +42,7 @@ public class ReviewsController : ControllerBase
     {
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
         var user = _context.Users.Find(userId);
-        if (user.Role == "admin")
+        if (user.Role == "Admin")
         {
             var reviews = _context.Reviews.Where(r => r.ProjectId == id).Include(r => r.Reviewer).ToList();
             return Ok(reviews);

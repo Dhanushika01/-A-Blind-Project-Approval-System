@@ -18,19 +18,15 @@ public class ProjectsController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin, Supervisor")]
     public IActionResult GetProjects()
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-        var user = _context.Users.Find(userId);
-        if (user.Role == "admin" || user.Role == "reviewer")
-        {
-            var projects = _context.Projects.Include(p => p.SubmittedBy).ToList();
-            return Ok(projects);
-        }
-        return Forbid();
+        var projects = _context.Projects.Include(p => p.SubmittedBy).ToList();
+        return Ok(projects);
     }
 
     [HttpGet("my")]
+    [Authorize(Roles = "Student")]
     public IActionResult GetMyProjects()
     {
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
@@ -39,6 +35,7 @@ public class ProjectsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Student")]
     public async Task<IActionResult> SubmitProject([FromBody] ProjectModel model)
     {
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
@@ -56,11 +53,9 @@ public class ProjectsController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateStatus(int id, [FromBody] StatusModel model)
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-        var user = _context.Users.Find(userId);
-        if (user.Role != "admin") return Forbid();
 
         var project = _context.Projects.Find(id);
         if (project == null) return NotFound();
@@ -70,6 +65,7 @@ public class ProjectsController : ControllerBase
     }
 
     [HttpPut("my/{id}")]
+    [Authorize(Roles = "Student")]
     public async Task<IActionResult> EditProject(int id, [FromBody] ProjectModel model)
     {
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
@@ -87,6 +83,7 @@ public class ProjectsController : ControllerBase
     }
 
     [HttpDelete("my/{id}")]
+    [Authorize(Roles = "Student")]
     public async Task<IActionResult> DeleteProject(int id)
     {
         var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);

@@ -15,7 +15,7 @@ namespace BlindProjectApproval.Models
         public string ResearchArea { get; set; }
         public int SubmittedById { get; set; }
         public User SubmittedBy { get; set; }
-        public string Status { get; set; } = "pending"; // pending, matched, approved, rejected
+        public string Status { get; set; } = "pending";
         public List<Review> Reviews { get; set; } = new();
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }

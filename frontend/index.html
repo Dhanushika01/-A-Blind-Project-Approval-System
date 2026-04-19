@@ -7,14 +7,12 @@
     <title>Blind Approval System</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
-    <!-- Ionicons for beautiful icons -->
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
 
 <body>
 
-    <!-- Login Overlay -->
     <div id="login-overlay" class="overlay active">
         <div class="login-box card">
             <h2>Welcome to Blind Approval</h2>
@@ -27,7 +25,6 @@
     </div>
 
     <div class="app-container">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo">
                 <ion-icon name="shield-checkmark-outline"></ion-icon>
@@ -55,25 +52,20 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
         <main class="main-content">
 
-            <!-- Dashboard View -->
             <div id="dashboard-view" class="view active">
                 <header class="header">
                     <h1>Activity Dashboard</h1>
                 </header>
 
                 <div class="dashboard-layout">
-                    <!-- Left column: Activity List -->
                     <div class="activity-feed card">
                         <div id="activity-list">
-                            <!-- Activities will be injected here -->
                             <div class="activity-item loading">Loading activities...</div>
                         </div>
                     </div>
 
-                    <!-- Right column: Stats -->
                     <div class="stats-panel card">
                         <h3>Approval Pipeline</h3>
 
@@ -135,17 +127,14 @@
                 </div>
             </div>
 
-            <!-- Projects List View -->
             <div id="projects-list-view" class="view hidden">
                 <header class="header">
                     <h1>My Projects</h1>
                 </header>
                 <div class="projects-grid" id="my-projects-grid">
-                    <!-- Projects will be injected here -->
                 </div>
             </div>
 
-            <!-- Submit Project View -->
             <div id="submit-project-view" class="view hidden">
                 <header class="header">
                     <h1>Submit New Project Proposal</h1>
@@ -184,7 +173,6 @@
                 </div>
             </div>
 
-            <!-- Edit Project View (Hidden by default) -->
             <div id="edit-project-view" class="view hidden">
                 <header class="header">
                     <h1>Edit Project Proposal</h1>

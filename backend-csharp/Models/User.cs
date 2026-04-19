@@ -11,7 +11,7 @@ namespace BlindProjectApproval.Models
         public string Email { get; set; }
         [Required]
         public string Password { get; set; }
-        public string Role { get; set; } = "submitter"; // submitter, reviewer, admin
+        public string Role { get; set; } = "Student";
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

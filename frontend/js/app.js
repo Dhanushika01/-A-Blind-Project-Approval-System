@@ -1,28 +1,25 @@
 const API_BASE = 'http://localhost:5000/api';
 let token = localStorage.getItem('token') || '';
 
-// DOM Elements
 const loginOverlay = document.getElementById('login-overlay');
 const loginBtn = document.getElementById('login-btn');
 const logoutBtn = document.getElementById('logout-btn');
 const navLinks = document.querySelectorAll('.nav-link');
 const views = document.querySelectorAll('.view');
 
-// Initial setup
 if (token) {
     loginOverlay.classList.remove('active');
     loadDashboard();
 }
 
-// Routing
 navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
         e.preventDefault();
         if (link.classList.contains('disabled')) return;
-        
+
         navLinks.forEach(l => l.classList.remove('active'));
         link.classList.add('active');
-        
+
         const targetView = link.getAttribute('data-view');
         views.forEach(view => {
             if (view.id === `${targetView}-view`) {
@@ -34,44 +31,39 @@ navLinks.forEach(link => {
             }
         });
 
-        // Load data based on view
         if (targetView === 'dashboard') loadDashboard();
         if (targetView === 'projects-list') loadProjectsList();
     });
 });
 
-// Authentication
 loginBtn.addEventListener('click', async () => {
     const user = document.getElementById('login-username').value;
     const pass = document.getElementById('login-password').value;
     const err = document.getElementById('login-error');
-    
+
     if (!user || !pass) { err.textContent = 'Please enter both fields'; return; }
-    
+
     try {
         loginBtn.textContent = 'Logging in...';
-        // Try login
         let res = await fetch(`${API_BASE}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: user, password: pass })
         });
-        
-        // If login fails (user doesn't exist), try registering
+
         if (!res.ok) {
             await fetch(`${API_BASE}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: user, name: user.split('@')[0], password: pass, role: 'student' })
             });
-            // Try login again
             res = await fetch(`${API_BASE}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: user, password: pass })
             });
         }
-        
+
         if (res.ok) {
             const data = await res.json();
             token = data.token;
@@ -95,7 +87,6 @@ logoutBtn.addEventListener('click', () => {
     loginOverlay.classList.add('active');
 });
 
-// API Helper
 async function apiCall(endpoint, method = 'GET', body = null) {
     const options = {
         method,
@@ -105,39 +96,36 @@ async function apiCall(endpoint, method = 'GET', body = null) {
         }
     };
     if (body) options.body = JSON.stringify(body);
-    
+
     const res = await fetch(`${API_BASE}${endpoint}`, options);
     if (res.status === 401) {
         logoutBtn.click();
         throw new Error('Unauthorized');
     }
     if (!res.ok) throw new Error('API Error');
-    // DELETE doesn't return JSON
     if (method === 'DELETE') return true;
     return await res.json();
 }
 
-// Load Dashboard Data (Mocking the global feed with local user feed for safety)
 async function loadDashboard() {
     const activityList = document.getElementById('activity-list');
     activityList.innerHTML = '<div class="activity-item loading">Loading...</div>';
-    
+
     try {
         const projects = await apiCall('/projects/my');
-        
+
         if (projects.length === 0) {
             activityList.innerHTML = '<div class="activity-item text-muted">No activity yet. Submit a project to get started!</div>';
             updateStats([]);
             return;
         }
 
-        // Generate activity feed based on user projects
         activityList.innerHTML = '';
-        projects.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).forEach(p => {
+        projects.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).forEach(p => {
             const date = new Date(p.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
             let icon = 'pulse-outline';
             let title = `New project "${p.title}" submitted`;
-            
+
             if (p.status === 'matched') {
                 icon = 'checkmark-circle-outline';
                 title = `Project "${p.title}" matched with reviewer`;
@@ -164,10 +152,9 @@ async function loadDashboard() {
     }
 }
 
-// Update Right Sidebar Stats
 function updateStats(projects) {
-    const areas = { 'Infrastructure': { t:0, a:0 }, 'Technology': { t:0, a:0 }, 'Healthcare': { t:0, a:0 }, 'Energy': { t:0, a:0 }, 'Education': { t:0, a:0 } };
-    
+    const areas = { 'Infrastructure': { t: 0, a: 0 }, 'Technology': { t: 0, a: 0 }, 'Healthcare': { t: 0, a: 0 }, 'Energy': { t: 0, a: 0 }, 'Education': { t: 0, a: 0 } };
+
     projects.forEach(p => {
         if (areas[p.researchArea]) {
             areas[p.researchArea].t++;
@@ -179,7 +166,7 @@ function updateStats(projects) {
     statGroups.forEach(group => {
         const title = group.querySelector('.stat-header span:first-child').textContent;
         const data = areas[title];
-        if(data) {
+        if (data) {
             group.querySelector('.stat-header span:last-child').textContent = `${data.t} total`;
             group.querySelector('.stat-footer').textContent = `${data.a} matched`;
             const pct = data.t === 0 ? 0 : (data.a / data.t) * 100;
@@ -188,11 +175,10 @@ function updateStats(projects) {
     });
 }
 
-// Load Projects List
 async function loadProjectsList() {
     const grid = document.getElementById('my-projects-grid');
     grid.innerHTML = '<p>Loading projects...</p>';
-    
+
     try {
         const projects = await apiCall('/projects/my');
         if (projects.length === 0) {
@@ -203,7 +189,7 @@ async function loadProjectsList() {
         grid.innerHTML = '';
         projects.forEach(p => {
             const canEdit = p.status === 'pending';
-            const buttons = canEdit 
+            const buttons = canEdit
                 ? `<button class="btn outline-btn edit-btn" data-id="${p.id}" data-project='${JSON.stringify(p).replace(/'/g, "&apos;")}'>
                      <ion-icon name="create-outline"></ion-icon> Edit
                    </button>
@@ -227,7 +213,6 @@ async function loadProjectsList() {
             `;
         });
 
-        // Attach event listeners to new buttons
         document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const projectData = JSON.parse(e.currentTarget.getAttribute('data-project'));
@@ -237,13 +222,13 @@ async function loadProjectsList() {
 
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
-                if(confirm('Are you sure you want to delete this proposal?')) {
+                if (confirm('Are you sure you want to delete this proposal?')) {
                     const id = e.currentTarget.getAttribute('data-id');
                     try {
                         await apiCall(`/projects/my/${id}`, 'DELETE');
                         loadProjectsList();
-                        loadDashboard(); // Refresh background data
-                    } catch(err) {
+                        loadDashboard();
+                    } catch (err) {
                         alert('Failed to delete project');
                     }
                 }
@@ -255,12 +240,11 @@ async function loadProjectsList() {
     }
 }
 
-// Submit Project Form
 document.getElementById('submit-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('submit-project-btn');
     btn.textContent = 'Submitting...';
-    
+
     const body = {
         title: document.getElementById('title').value,
         researchArea: document.getElementById('researchArea').value,
@@ -272,7 +256,6 @@ document.getElementById('submit-form').addEventListener('submit', async (e) => {
         await apiCall('/projects', 'POST', body);
         document.getElementById('submit-form').reset();
         alert('Project submitted successfully!');
-        // Navigate back to Dashboard
         navLinks[0].click();
     } catch (err) {
         alert('Failed to submit project');
@@ -281,22 +264,20 @@ document.getElementById('submit-form').addEventListener('submit', async (e) => {
     }
 });
 
-// Edit Project Logic
 function openEditView(project) {
     document.getElementById('edit-id').value = project.id;
     document.getElementById('edit-title').value = project.title;
     document.getElementById('edit-researchArea').value = project.researchArea;
     document.getElementById('edit-techStack').value = project.techStack;
     document.getElementById('edit-abstract').value = project.abstract;
-    
-    // Switch View
+
     views.forEach(view => view.classList.add('hidden'));
     document.getElementById('edit-project-view').classList.remove('hidden');
     navLinks.forEach(l => l.classList.remove('active'));
 }
 
 document.getElementById('cancel-edit-btn').addEventListener('click', () => {
-    navLinks[1].click(); // Back to Projects List
+    navLinks[1].click();
 });
 
 document.getElementById('edit-form').addEventListener('submit', async (e) => {
@@ -304,7 +285,7 @@ document.getElementById('edit-form').addEventListener('submit', async (e) => {
     const id = document.getElementById('edit-id').value;
     const btn = document.getElementById('save-edit-btn');
     btn.textContent = 'Saving...';
-    
+
     const body = {
         title: document.getElementById('edit-title').value,
         researchArea: document.getElementById('edit-researchArea').value,
@@ -315,7 +296,7 @@ document.getElementById('edit-form').addEventListener('submit', async (e) => {
     try {
         await apiCall(`/projects/my/${id}`, 'PUT', body);
         alert('Project updated successfully!');
-        navLinks[1].click(); // Go back to list
+        navLinks[1].click();
     } catch (err) {
         alert('Failed to update project');
     } finally {
