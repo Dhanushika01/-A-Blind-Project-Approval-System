@@ -17,16 +17,28 @@ public class ReviewsController : ControllerBase
         _context = context;
     }
 
+    private int? GetUserId()
+    {
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return int.TryParse(userIdClaim, out var userId) ? userId : null;
+    }
+
     [HttpPost]
     public async Task<IActionResult> SubmitReview([FromBody] ReviewModel model)
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-        var user = _context.Users.Find(userId);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        var user = await _context.Users.FindAsync(userId.Value);
+        if (user == null) return Unauthorized();
         if (user.Role != "reviewer" && user.Role != "admin") return Forbid();
 
         var review = new Review
         {
-            ReviewerId = userId,
+            ReviewerId = userId.Value,
             ProjectId = model.ProjectId,
             Rating = model.Rating,
             Comment = model.Comment,
@@ -38,18 +50,22 @@ public class ReviewsController : ControllerBase
     }
 
     [HttpGet("project/{id}")]
-    public IActionResult GetReviews(int id)
+    public async Task<IActionResult> GetReviews(int id)
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-        var user = _context.Users.Find(userId);
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        var user = await _context.Users.FindAsync(userId.Value);
+        if (user == null) return Unauthorized();
+
         if (user.Role == "admin")
         {
-            var reviews = _context.Reviews.Where(r => r.ProjectId == id).Include(r => r.Reviewer).ToList();
+            var reviews = await _context.Reviews.Where(r => r.ProjectId == id).Include(r => r.Reviewer).ToListAsync();
             return Ok(reviews);
         }
         else
         {
-            var reviews = _context.Reviews.Where(r => r.ProjectId == id && r.ReviewerId == userId).Include(r => r.Reviewer).ToList();
+            var reviews = await _context.Reviews.Where(r => r.ProjectId == id && r.ReviewerId == userId.Value).Include(r => r.Reviewer).ToListAsync();
             return Ok(reviews);
         }
     }
@@ -59,6 +75,6 @@ public class ReviewModel
 {
     public int ProjectId { get; set; }
     public int Rating { get; set; }
-    public string Comment { get; set; }
+    public string Comment { get; set; } = string.Empty;
     public bool Anonymous { get; set; } = true;
 }

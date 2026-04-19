@@ -17,36 +17,53 @@ public class ProjectsController : ControllerBase
         _context = context;
     }
 
-    [HttpGet]
-    public IActionResult GetProjects()
+    private int? GetUserId()
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-        var user = _context.Users.Find(userId);
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return int.TryParse(userIdClaim, out var userId) ? userId : null;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetProjects()
+    {
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        var user = await _context.Users.FindAsync(userId.Value);
+        if (user == null) return Unauthorized();
+
         if (user.Role == "admin" || user.Role == "reviewer")
         {
-            var projects = _context.Projects.Include(p => p.SubmittedBy).ToList();
+            var projects = await _context.Projects.Include(p => p.SubmittedBy).ToListAsync();
             return Ok(projects);
         }
         return Forbid();
     }
 
     [HttpGet("my")]
-    public IActionResult GetMyProjects()
+    public async Task<IActionResult> GetMyProjects()
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-        var projects = _context.Projects.Where(p => p.SubmittedById == userId).ToList();
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        var projects = await _context.Projects.Where(p => p.SubmittedById == userId.Value).ToListAsync();
         return Ok(projects);
     }
 
     [HttpPost]
     public async Task<IActionResult> SubmitProject([FromBody] ProjectModel model)
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
         var project = new Project
         {
             Title = model.Title,
             Description = model.Description,
-            SubmittedById = userId
+            SubmittedById = userId.Value
         };
         _context.Projects.Add(project);
         await _context.SaveChangesAsync();
@@ -56,12 +73,19 @@ public class ProjectsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateStatus(int id, [FromBody] StatusModel model)
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
-        var user = _context.Users.Find(userId);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        var user = await _context.Users.FindAsync(userId.Value);
+        if (user == null) return Unauthorized();
         if (user.Role != "admin") return Forbid();
 
-        var project = _context.Projects.Find(id);
+        var project = await _context.Projects.FindAsync(id);
         if (project == null) return NotFound();
+
         project.Status = model.Status;
         await _context.SaveChangesAsync();
         return Ok(project);
@@ -70,11 +94,11 @@ public class ProjectsController : ControllerBase
 
 public class ProjectModel
 {
-    public string Title { get; set; }
-    public string Description { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
 }
 
 public class StatusModel
 {
-    public string Status { get; set; }
+    public string Status { get; set; } = string.Empty;
 }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using BlindProjectApproval.Models;
 using BlindProjectApproval.Services;
 using BlindProjectApproval.Data;
@@ -19,7 +20,10 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterModel model)
     {
-        if (_context.Users.Any(u => u.Email == model.Email))
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        if (await _context.Users.AnyAsync(u => u.Email == model.Email))
             return BadRequest("User already exists");
 
         var user = new User
@@ -27,7 +31,7 @@ public class AuthController : ControllerBase
             Name = model.Name,
             Email = model.Email,
             Password = BCrypt.Net.BCrypt.HashPassword(model.Password),
-            Role = model.Role
+            Role = string.IsNullOrWhiteSpace(model.Role) ? "submitter" : model.Role.Trim()
         };
 
         _context.Users.Add(user);
@@ -40,7 +44,10 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginModel model)
     {
-        var user = _context.Users.FirstOrDefault(u => u.Email == model.Email);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
         if (user == null || !BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
             return BadRequest("Invalid credentials");
 
@@ -51,14 +58,14 @@ public class AuthController : ControllerBase
 
 public class RegisterModel
 {
-    public string Name { get; set; }
-    public string Email { get; set; }
-    public string Password { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
     public string Role { get; set; } = "submitter";
 }
 
 public class LoginModel
 {
-    public string Email { get; set; }
-    public string Password { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 }
