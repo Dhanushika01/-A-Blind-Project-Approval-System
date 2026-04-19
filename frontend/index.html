@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blind Approval System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Ionicons for beautiful icons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+
+<body>
+
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="overlay active">
+        <div class="login-box card">
+            <h2>Welcome to Blind Approval</h2>
+            <p>Login to access the Student Module</p>
+            <input type="email" id="login-username" placeholder="Email (e.g. student@test.com)">
+            <input type="password" id="login-password" placeholder="Password (e.g. password123)">
+            <button id="login-btn" class="btn primary-btn">Login / Register</button>
+            <p id="login-error" class="error-msg"></p>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <ion-icon name="shield-checkmark-outline"></ion-icon>
+                <span>Blind Approval</span>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="#" class="nav-link active" data-view="dashboard">
+                    <ion-icon name="grid-outline"></ion-icon> Dashboard
+                </a>
+                <a href="#" class="nav-link" data-view="projects-list">
+                    <ion-icon name="folder-outline"></ion-icon> Projects List
+                </a>
+                <a href="#" class="nav-link" data-view="submit-project">
+                    <ion-icon name="add-circle-outline"></ion-icon> Submit Project
+                </a>
+                <a href="#" class="nav-link disabled" data-view="admin-pipeline">
+                    <ion-icon name="settings-outline"></ion-icon> Admin Pipeline
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="logout-btn" class="btn outline-btn"><ion-icon name="log-out-outline"></ion-icon>
+                    Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view active">
+                <header class="header">
+                    <h1>Activity Dashboard</h1>
+                </header>
+
+                <div class="dashboard-layout">
+                    <!-- Left column: Activity List -->
+                    <div class="activity-feed card">
+                        <div id="activity-list">
+                            <!-- Activities will be injected here -->
+                            <div class="activity-item loading">Loading activities...</div>
+                        </div>
+                    </div>
+
+                    <!-- Right column: Stats -->
+                    <div class="stats-panel card">
+                        <h3>Approval Pipeline</h3>
+
+                        <div class="stat-group">
+                            <div class="stat-header">
+                                <span>Infrastructure</span>
+                                <span>1 total</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="fill" style="width: 0%;"></div>
+                            </div>
+                            <div class="stat-footer">0 approved</div>
+                        </div>
+
+                        <div class="stat-group">
+                            <div class="stat-header">
+                                <span>Technology</span>
+                                <span>0 total</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="fill" style="width: 0%;"></div>
+                            </div>
+                            <div class="stat-footer">0 approved</div>
+                        </div>
+
+                        <div class="stat-group">
+                            <div class="stat-header">
+                                <span>Healthcare</span>
+                                <span>0 total</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="fill" style="width: 0%;"></div>
+                            </div>
+                            <div class="stat-footer">0 approved</div>
+                        </div>
+
+                        <div class="stat-group">
+                            <div class="stat-header">
+                                <span>Energy</span>
+                                <span>0 total</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="fill" style="width: 0%;"></div>
+                            </div>
+                            <div class="stat-footer">0 approved</div>
+                        </div>
+
+                        <div class="stat-group">
+                            <div class="stat-header">
+                                <span>Education</span>
+                                <span>0 total</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="fill" style="width: 0%;"></div>
+                            </div>
+                            <div class="stat-footer">0 approved</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects List View -->
+            <div id="projects-list-view" class="view hidden">
+                <header class="header">
+                    <h1>My Projects</h1>
+                </header>
+                <div class="projects-grid" id="my-projects-grid">
+                    <!-- Projects will be injected here -->
+                </div>
+            </div>
+
+            <!-- Submit Project View -->
+            <div id="submit-project-view" class="view hidden">
+                <header class="header">
+                    <h1>Submit New Project Proposal</h1>
+                </header>
+                <div class="form-container card">
+                    <form id="submit-form">
+                        <div class="form-group">
+                            <label for="title">Project Title</label>
+                            <input type="text" id="title" required placeholder="Enter a descriptive title">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="researchArea">Research Area</label>
+                            <select id="researchArea" required>
+                                <option value="Technology">Technology</option>
+                                <option value="Infrastructure">Infrastructure</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Energy">Energy</option>
+                                <option value="Education">Education</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="techStack">Tech Stack</label>
+                            <input type="text" id="techStack" required placeholder="e.g. C#, React, SQL">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="abstract">Abstract</label>
+                            <textarea id="abstract" required rows="5"
+                                placeholder="Provide a comprehensive abstract for your project proposal..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn primary-btn" id="submit-project-btn">Submit Proposal</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Edit Project View (Hidden by default) -->
+            <div id="edit-project-view" class="view hidden">
+                <header class="header">
+                    <h1>Edit Project Proposal</h1>
+                </header>
+                <div class="form-container card">
+                    <form id="edit-form">
+                        <input type="hidden" id="edit-id">
+                        <div class="form-group">
+                            <label for="edit-title">Project Title</label>
+                            <input type="text" id="edit-title" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-researchArea">Research Area</label>
+                            <select id="edit-researchArea" required>
+                                <option value="Technology">Technology</option>
+                                <option value="Infrastructure">Infrastructure</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Energy">Energy</option>
+                                <option value="Education">Education</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-techStack">Tech Stack</label>
+                            <input type="text" id="edit-techStack" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-abstract">Abstract</label>
+                            <textarea id="edit-abstract" required rows="5"></textarea>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="submit" class="btn primary-btn" id="save-edit-btn">Save Changes</button>
+                            <button type="button" class="btn outline-btn" id="cancel-edit-btn">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>

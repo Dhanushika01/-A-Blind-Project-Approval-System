@@ -1,0 +1,20 @@
+# Build artifacts
+backend-csharp/bin/
+backend-csharp/obj/
+
+# User-specific files
+*.user
+*.suo
+*.vcxproj.user
+
+# Visual Studio temporary files
+.vs/
+
+# Windows files
+Thumbs.db
+Desktop.ini
+
+# Node artifacts not used anymore
+node_modules/
+npm-debug.log
+.YarnIntegrity

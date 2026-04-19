@@ -1,0 +1,20 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Restore Backend",
+      "type": "shell",
+      "command": "dotnet restore backend-csharp/BlindProjectApproval.csproj",
+      "group": "build",
+      "problemMatcher": ["$msCompile"]
+    },
+    {
+      "label": "Run Backend",
+      "type": "shell",
+      "command": "dotnet run --project backend-csharp/BlindProjectApproval.csproj",
+      "group": "build",
+      "problemMatcher": ["$msCompile"],
+      "isBackground": true
+    }
+  ]
+}

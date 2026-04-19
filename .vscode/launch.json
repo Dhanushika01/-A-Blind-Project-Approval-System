@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Backend",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "Restore Backend",
+      "program": "${workspaceFolder}/backend-csharp/bin/Debug/net8.0/BlindProjectApproval.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/backend-csharp",
+      "stopAtEntry": false,
+      "console": "integratedTerminal"
+    }
+  ]
+}
